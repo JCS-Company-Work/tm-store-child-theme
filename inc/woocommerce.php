@@ -186,7 +186,7 @@ function tm_modify_product_structured_data( $markup, $product ) {
                 }
 
                 if ( $biggest_model ) {
-                    // Add size cost to
+                    // Add size cost to  base price including VAT
                     $base_price = floatval( $offer['priceSpecification'][0]['price'] );
                     $offer['priceSpecification'][0]['price'] = $base_price + ($biggest_price * 1.2); // Assuming 20% tax
                 }

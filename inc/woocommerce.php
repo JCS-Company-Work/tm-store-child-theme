@@ -1,7 +1,7 @@
 <?php
 
     // Move product meta below product summary
-     remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_meta', 40);
+    remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_meta', 40);
     // add_action( 'woocommerce_after_single_product_summary', 'woocommerce_template_single_meta', 10);
 
     // Disable 'ship to different address' default
@@ -169,6 +169,28 @@ function tm_modify_product_structured_data( $markup, $product ) {
 
         // Add top-level price fields
         if ( isset( $offer['priceSpecification'][0]['price'] ) ) {
+
+            // Get model sizes for product from postmeta
+            $model_sizes = get_post_meta( $product->get_id(), '_tmpa_model_size', true );
+
+            // Find biggest model and extract price
+            if ( ! empty( $model_sizes ) && is_array( $model_sizes ) ) {
+                $biggest_model = null;
+                $biggest_price = 0;
+
+                foreach ( $model_sizes as $size ) {
+                    if ( isset( $size['price'] ) && floatval( $size['price'] ) > $biggest_price ) {
+                        $biggest_price = floatval( $size['price'] );
+                        $biggest_model = $size;
+                    }
+                }
+
+                if ( $biggest_model ) {
+                    // Add size cost to base price
+                    $base_price = floatval( $offer['priceSpecification'][0]['price'] );
+                    $offer['priceSpecification'][0]['price'] = $base_price + ($biggest_price * 1.2); // Assuming 20% tax
+                }
+            }
 
             $offer['price'] = $offer['priceSpecification'][0]['price'];
             $offer['priceCurrency'] = $offer['priceSpecification'][0]['priceCurrency'];
